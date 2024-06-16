@@ -1,4 +1,5 @@
 [DATABASE]
+- turn on Apache & MySQL from XAMPP
 - create a new database and import updown.db
 
 [COMPILE VIA CMD]
