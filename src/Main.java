@@ -37,7 +37,7 @@ public class Main {
     private static void showMainMenu() {
         mainMenu.refreshUserData();                 // update data dari tabel setiap kali ke MainMenu
 
-        frame.getContentPane().removeAll();         // menghaapus tampilan game untuk kembali ke menu
+        frame.getContentPane().removeAll();         // menghapus tampilan game untuk kembali ke menu
         frame.add(mainMenu, BorderLayout.CENTER);   // menambahkan mainMenu ke panel
         frame.revalidate();                         // validasi ulang layout panel
         frame.repaint();                            // menampilkan panel dari main menu

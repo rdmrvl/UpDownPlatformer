@@ -1,3 +1,6 @@
+[UP DOWN]
+"UP DOWN" is a game that tells the story of the main character who tries to survive in the given environment. The main character strives to avoid falling. Survival can be achieved by hanging on above or standing on the lower obstacle to prevent falling or collision with the obstacle.
+
 [DATABASE]
 - turn on Apache & MySQL from XAMPP
 - create a new database and import updown.db

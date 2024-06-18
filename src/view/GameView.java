@@ -34,7 +34,7 @@ public class GameView extends JPanel {
 
         Timer gameTimer = new Timer(28, e -> {  // timer untuk refresh ulang panel
             update();                           // memanggil metode update untuk refresh logika game
-            repaint();                          // memanggil metode repaint untuk menggambar ulang panel
+            repaint();                          // memanggil metode repaint untuk menggambar ulang panel/frame agar animasi berjalan
         });
         gameTimer.start();
 

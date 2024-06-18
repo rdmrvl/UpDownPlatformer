@@ -45,6 +45,7 @@ public class GameModel {
     private boolean explosionSoundPlayed;   // menandai sfx ledakan jika karakter menabrak
     private Clip backgroundClip;            // objek Clip untuk memutar bgm
     private boolean gameOver;               // status apakah game berakhir/belum
+    private boolean jumpFlag = false;
 
     public GameModel(String username) {
         this.username = username;       // mengatur nama username untuk melacak pemain saat ini
@@ -67,6 +68,7 @@ public class GameModel {
         exploded = false;               // mengatur status awal ledakan karakter sebagai tidak meledak (karena belum nabrak)
         explosionSoundPlayed = false;   // mengatur status awal sfx ledakan sebagai belum diputar
         playBackgroundMusic();          // memanggil metode untuk bgm
+        jumpFlag = false;               // menandakan agar karakter tidak meledak saat spawn
     }
 
 
@@ -92,6 +94,7 @@ public class GameModel {
         animationCounter = 0;           // penghitung untuk kecepatan animasi
         up = 0;                         // mengatur hitungan awal mendarat di "up"
         down = 0;                       // mengatur hitungan awal mendarat di "down"
+        jumpFlag = false;
     }
 
     // getter untuk melempar data ke viewmodel
@@ -176,6 +179,7 @@ public class GameModel {
         if (!jumping) {
             try {
                 // play sfx dari folder assets
+                jumpFlag = true;
                 File soundFile = new File("assets/jump.wav");
                 AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
                 Clip clip = AudioSystem.getClip();
@@ -289,6 +293,13 @@ public class GameModel {
 
         // mengecek collision dengan sisi obstacle, jika nabrak play sfx ledakan
         if (checkSideCollision(obstacleX, obstacleY, 48, 100) && !steppedOnObstacle  || checkSideCollision(stepableX, stepableY, 53, 1)) {
+            triggerExplosion(characterX, characterY);
+            playExplosionSound();
+            gameOver = true;
+        }
+
+        // mengecek collision dengan lantai selain obstacle
+        if (!onObstacle && !onStepable && characterY >= 200 && jumpFlag == true) {
             triggerExplosion(characterX, characterY);
             playExplosionSound();
             gameOver = true;
