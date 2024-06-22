@@ -1,7 +1,3 @@
-// Saya [Marvel Ravindra Dioputra 2200481] mengerjakan evaluasi Tugas Masa Depan
-// dalam mata kuliah Desain dan Pemrograman Berorientasi Objek untuk keberkahanNya
-// maka saya tidak melakukan kecurangan seperti yang telah dispesifikasikan. Aamiin.
-
 import model.DB;    // import kelas DB folder model untuk koneksi database
 
 import javax.swing.*;                       // import javax.swing untuk membuat GUI
@@ -9,6 +5,8 @@ import javax.swing.table.DefaultTableModel; // import DefaultTableModel untuk ta
 import java.awt.*;                          // import java.awt untuk layout GUI
 import java.awt.event.ActionEvent;          // import ActionEvent untuk menangani event
 import java.awt.event.ActionListener;       // import ActionListener untuk menangani action
+import java.io.File;                        // import File untuk file handling
+import java.io.IOException;                 // import IOException untuk exception handling
 import java.sql.ResultSet;                  // import ResultSet untuk menangani hasil query database
 import java.sql.SQLException;               // import SQLException untuk menangani exception SQL
 
@@ -18,17 +16,65 @@ public class MainMenu extends JPanel {
     private DefaultTableModel tableModel;   // deklarasi variabel tableModel untuk menampilkan tabel
     private JTextField usernameField;       // deklarasi variabel usernameField untuk memasukkan username
     private JTable userTable;               // deklarasi variabel userTable untuk menampilkan data usernam dalam tabel
+    private CardLayout cardLayout;          // CardLayout untuk navigasi antar panel
+    private JPanel cardsPanel;              // Panel untuk menyimpan kartu (halaman) yang berbeda
+    private Font customFont;                // Font custom
 
     public MainMenu(Runnable onStart) {
         this.onStart = onStart;                     // insialsiasi bahwa game dimulai
         setPreferredSize(new Dimension(460, 382));  // set dimensi windows JPanel
         setBackground(Color.WHITE);                 // set warna background
-        setLayout(new GridBagLayout());             // untuk layout tampilan main menu
+        setLayout(new BorderLayout());              // Menggunakan BorderLayout untuk layout utama
 
-        // membuat komponen yang ada pada main menu
+        // Load custom font
+        try {
+            customFont = Font.createFont(Font.TRUETYPE_FONT, new File("assets/04B_30__.ttf")).deriveFont(24f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(customFont);
+        } catch (FontFormatException | IOException e) {
+            e.printStackTrace();
+            customFont = new Font("Helvetica", Font.BOLD, 24); // Fallback font
+        }
+
+        cardLayout = new CardLayout();
+        cardsPanel = new JPanel(cardLayout);
+
+        // Panel utama
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        // Panel How to Play
+        JPanel htpPanel = new HTP();
+        // Panel Credits
+        JPanel creditsPanel = new Credits();
+
+        // menambahkan panel ke cardsPanel
+        cardsPanel.add(mainPanel, "MainMenu");
+        cardsPanel.add(htpPanel, "HowToPlay");
+        cardsPanel.add(creditsPanel, "Credits");
+
+        // Membuat panel atas untuk title dan input username
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        JLabel titleLabel = new JLabel("UP DOWN");
+        titleLabel.setFont(customFont);
         usernameField = new JTextField(15);                 // input field untuk input username
         JButton addButton = new JButton("Add User");        // tombol untuk add username yang telah di isi
-        JButton startButton = new JButton("Start Game");    // tombol start untuk memulai game
+
+        // setup layout untuk top panel
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 3;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        topPanel.add(titleLabel, gbc);
+
+        gbc.gridwidth = 1;
+        gbc.gridy = 1;
+        topPanel.add(new JLabel("Enter Username:"), gbc);
+
+        gbc.gridx = 1;
+        topPanel.add(usernameField, gbc);
+
+        gbc.gridx = 2;
+        topPanel.add(addButton, gbc);
 
         // tabel untuk menampilkan data dari updown.db tuser
         // deklarasi apa saja yang akan ditampilkan pada tabel
@@ -37,13 +83,20 @@ public class MainMenu extends JPanel {
         userTable = new JTable(tableModel);
         // agar tabel dapat di scroll (apabila datanya banyak)
         JScrollPane tableScrollPane = new JScrollPane(userTable);
-        tableScrollPane.setPreferredSize(new Dimension(400, 200));
 
         // memasukan data username dsb dari tabel pada database
         loadUserData();
 
+        // Panel bawah untuk tombol-tombol
+        JPanel bottomPanel = new JPanel(new GridLayout(1, 4));
+        JButton startButton = new JButton("Start");    // tombol start untuk memulai game
+        JButton htpButton = new JButton("Controls");     // tombol How to Play
+        JButton creditsButton = new JButton("Credits");     // tombol Credits
+        JButton exitButton = new JButton("Exit");           // tombol Exit
+
         // tombol start game
-        startButton.setFont(new Font("Helvetica", Font.PLAIN, 24));
+        startButton.setFont(customFont.deriveFont(10f));
+        startButton.setBorderPainted(false);
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -74,26 +127,49 @@ public class MainMenu extends JPanel {
             }
         });
 
-        // setup layout
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(10, 10, 10, 10);
-        add(new JLabel("Enter Username:"), gbc);
+        // tombol how to play
+        htpButton.setFont(customFont.deriveFont(10f));
+        htpButton.setBorderPainted(false);
+        htpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardsPanel, "HowToPlay");
+            }
+        });
 
-        gbc.gridx = 1;
-        add(usernameField, gbc);
+        // tombol credits
+        creditsButton.setFont(customFont.deriveFont(10f));
+        creditsButton.setBorderPainted(false);
+        creditsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardsPanel, "Credits");
+            }
+        });
 
-        gbc.gridx = 2;
-        add(addButton, gbc);
+        // tombol exit
+        exitButton.setFont(customFont.deriveFont(10f));
+        exitButton.setBorderPainted(false);
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0); // keluar dari aplikasi
+            }
+        });
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 3;
-        add(tableScrollPane, gbc);
+        // Menambahkan tombol ke bottom panel
+        bottomPanel.add(startButton);
+        bottomPanel.add(htpButton);
+        bottomPanel.add(creditsButton);
+        bottomPanel.add(exitButton);
 
-        gbc.gridy = 2;
-        add(startButton, gbc);
+        // Menambahkan panel ke mainPanel
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(tableScrollPane, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        setLayout(new BorderLayout());
+        add(cardsPanel, BorderLayout.CENTER);
     }
 
     // method untuk refresh data pada tabel
